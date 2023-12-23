@@ -1,1 +1,0 @@
-# Verison-final-project-jeux-de-cartes-cpp-Qt
