@@ -16,17 +16,17 @@ class Player : public QObject
 
 public:
 
-    Player(Deck* deck); /*constructor*/
+    Player(); /*constructor*/
 
     Q_INVOKABLE void remove(int index);
     Q_INVOKABLE int addCard(int index);
     Q_INVOKABLE QList<int> getHand();
-    Q_INVOKABLE void clearHand(QList<int>);
+    Q_INVOKABLE void clearHand();
     Q_INVOKABLE QString sourceImage(int);
 
 private:
     //    variable
-    Deck* deck; /*object of Deck*/
+//    Deck* deck; /*object of Deck*/
     QList<int> hand; /*list of card in hand*/
 };
 

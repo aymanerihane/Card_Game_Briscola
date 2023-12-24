@@ -77,12 +77,11 @@
         <file>sounds/winner.wav</file>
         <file>sounds/you_lose.wav</file>
         <file>cards/win.png</file>
-        <file>cards/tuto1.jpg</file>
-        <file>cards/tuto2.jpg</file>
-        <file>cards/tuto3.jpg</file>
         <file>cards/help.png</file>
         <file>sounds/fire.wav</file>
         <file>sounds/guitar.wav</file>
         <file>cards/winnn.gif</file>
+        <file>cards/tuto1.jpg</file>
+        <file>cards/tuto2.jpg</file>
     </qresource>
 </RCC>

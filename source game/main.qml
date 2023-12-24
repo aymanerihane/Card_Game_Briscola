@@ -71,13 +71,13 @@ ApplicationWindow  {
         guitar.volume=0.5;
         butt.volume=0.2;
 //        mask bot card
-        card11.visible=true;
-        card33.visible=true;
-        card22.visible=true;
+        card11.visible=false;
+        card33.visible=false;
+        card22.visible=false;
         playerTwo.opacity=0.5;
-        card111.visible=false;
-        card222.visible=false;
-        card333.visible=false;
+        card111.visible=true;
+        card222.visible=true;
+        card333.visible=true;
 //        update the hight score once the game is running
         hightScore=gameControl.hightScore();
     }
@@ -479,9 +479,10 @@ ApplicationWindow  {
                                 card333.source = "cards/back2.png";
                             }
 
-                        }else if(size == 1 && last == 0){ /*in case the size of deck is equal 1*/
+                        }else if((size == 1 || size==0) && last == 0){ /*in case the size of deck is equal 1*/
                             if(gameControl.getTurn()==true){  /*in case it's the player turn briscola card will add to player hand and the 1 card in deck will go to bot hand*/
                                 if (card2.source == "") {
+                                    console.log("entred here");
                                     card2.source = briscola.source;
                                     Player1.sourceImage(indexOfBrisco);
                                     briscola.opacity = 0.4;
@@ -523,7 +524,7 @@ ApplicationWindow  {
                                     card111.source = "cards/back2.png";
                                     briscola.opacity = 0.4;
                                     deckImage.visible = false;
-                               } else if (card33.source != "") {
+                               } else if (card33.source == "") {
                                     card33.source = briscola.source;
                                     Player2.sourceImage(indexOfBrisco);
                                     card333.source = "cards/back2.png";
@@ -851,8 +852,8 @@ ApplicationWindow  {
                                     battle2.source = "";
                                     briscola.source = "";
 //                                    back-end varibale
-                                    Player1.clearHand(Player1.getHand());
-                                    Player2.clearHand(Player2.getHand());
+                                    Player1.clearHand();
+                                    Player2.clearHand();
                                     Score.clearScore();
                                     gameControl.setTurnDouble(0);
                                     gameControl.setTurn(true);
@@ -1133,18 +1134,26 @@ ApplicationWindow  {
         Connections{
             target: gameControl
             function onWinnerDetected(){ /*respond the winner ditected signal*/
+                draw.volume=0;
+                winner.start();
+            }
+        }
+        Timer { /*timer of bot play in case the bot play first*/
+            id: winner
+            interval: 1000 // 2 seconds
+            onTriggered: {
                 let whoWin = gameControl.getWhoWin(); /*if who win = 1 (win) if = 2 (lose) if = 0 (egalite)*/
-                if(whoWin == 1){
-                    winImage.source= "cards/win.png";
-                    winS.play();
-                    winnn.visible=true;
-                }else if(whoWin == 2){
-                    winImage.source= "cards/lose.png";
-                    lose1.play();
-                    lose2.play();
-                }
-                win.visible= true
-                table.visible= false
+                                if(whoWin == 1){
+                                    winImage.source= "cards/win.png";
+                                    winS.play();
+                                    winnn.visible=true;
+                                }else if(whoWin == 2){
+                                    winImage.source= "cards/lose.png";
+                                    lose1.play();
+                                    lose2.play();
+                                }
+                                win.visible= true
+                                table.visible= false
             }
         }
         Image{ /*show score of player1*/
@@ -1422,6 +1431,7 @@ ApplicationWindow  {
                     easy.visible= false;
                     medium.visible= false;
                     hard.visible= false;
+                    draw.volume=1;
                     butt.play();
                 }
                 onEntered: {home.scale= 1.3;}
@@ -1454,7 +1464,6 @@ ApplicationWindow  {
             model: ListModel {
                 ListElement { source: "cards/tuto1.jpg" }
                 ListElement { source: "cards/tuto2.jpg" }
-                ListElement { source: "cards/tuto3.jpg" }
             }
 
             delegate: Item {

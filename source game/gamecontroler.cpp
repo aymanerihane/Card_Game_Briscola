@@ -17,111 +17,44 @@ void GameControler::switchTurn()
 
 
 }
-
+//getters
 bool GameControler::getTurn()
 {
    return player1Turn;
 }
 
+int GameControler::getTurnDouble()
+{
+   return turn;
+
+}
+
+int GameControler::getWhoWin()
+{
+   return whoWin;
+}
+
+//setters
 void GameControler::setTurn(bool turn)
 {
    player1Turn= turn;
    emit turnChanged(player1Turn);
 }
 
-void GameControler::play(QString cardPlayedSource)
+void GameControler::setTurnDouble(int turn)
 {
-    QList<int> deckList = deck->getDeck();/* get the deck cards*/
-    QList<int> player1Hand = player1->getHand(); /*get player1 hand*/
-    QList<int> player2Hand = player2->getHand(); /*get player2 hand*/
-    int briscoS= deck->getBriscoSuite();
+   this->turn= turn;
 
-    int indexOfCardPlayed = searchCard(cardPlayedSource,player1); /*trnasfert the path in function parametre to a index in the hand of the secand parametre*/
-    int indexCard = toindex(cardPlayedSource); /*stock the index in deck of the cardPlayed*/
-    int cardPlay= player1Hand[indexOfCardPlayed]; /*stock the index in the hand of player 1 of the card played*/
-    int indexOfImageEmit =card2; /*stock the index of the last card played from the bot in indexOfImageEmit*/
-    QString imageEmit=toPath(card2); /*stock the path of the last card played from the bot in indexOfImageEmit*/
+}
 
-
-        while (turn < 2) {
-            if (player1Turn == false){/* turn of bot*/
-
-                imageEmit=botPlay(turn, cardPlay);
-                indexOfImageEmit =toindex(imageEmit);
-
-            }else if(player1Turn == true){ /* turn of player1*/
-
-                player1->remove(indexOfCardPlayed);
-                if(turn == 0){
-                    switchTurn();
-                    qDebug() << "---------------" ;
-                }
-                    qDebug() << "le player a jouer" << indexCard;
-                turn++;
-
-            }
-        }
-//        initialize the turn with 0
-        turn = 0;
-//        set the score of the round
-        score->setScore(indexCard,indexOfImageEmit ,briscoS);
-
-        int valueCardEmit= deck->getValue(indexOfImageEmit); /*stock the value of card emit by bot*/
-        int valueCardPlayed = deck->getValue(indexCard);    /*stock the value of card emit by player1*/
-        int CardEmitS= deck->getSuite(indexOfCardPlayed);
-        int CardPlayedS= deck->getSuite(indexCard);
-
-
-//        clear the battle
-        emit clearBattle(0);
-
-
-        if((CardEmitS==briscoS && CardPlayedS==briscoS) || (CardEmitS!=briscoS && CardPlayedS!=briscoS)){
-
-            if(valueCardEmit > valueCardPlayed){
-
-                player1Turn = false;
-                emit turnChanged(player1Turn);
-
-
-            }else if(valueCardEmit == valueCardPlayed){
-                if(valueCardEmit == 0 && valueCardPlayed == 0){
-                    if((indexOfImageEmit%10) > (indexCard%10)){
-                        player1Turn = false;
-                        emit turnChanged(player1Turn);
-                    }else{
-                        player1Turn=true;
-                        emit turnChanged(player1Turn);
-                    }
-
-                }else{
-//                    player1Turn = true;
-                    switchTurn();
-                    emit turnChanged(player1Turn);
-                }
-            }else if(valueCardEmit < valueCardPlayed){ /*!! pass*/
-                player1Turn = true;
-                emit turnChanged(player1Turn);
-            }
-
-        }else if(CardEmitS!=briscoS && CardPlayedS==briscoS){
-            player1Turn= true;
-            emit turnChanged(player1Turn);
-        }else if(CardEmitS==briscoS && CardPlayedS!=briscoS){
-            player1Turn= false;
-            emit turnChanged(player1Turn);
-        }
-
-//        if the player1 and do bot d'ont have any card that mean that the game is over
-        if(player1Hand.size()==1 && (player2Hand.size()==1 || player2Hand.size() == 0)){
-                winner();
-        }
-
-
+void GameControler::setDifficulty(QString diff)
+{
+   difficulty= diff;
 }
 
 
 
+// transfer image to path or the inverse
 int GameControler::toindex(QString path)
 {
     QRegularExpression regex("(\\d+)\\.gif");
@@ -136,56 +69,65 @@ int GameControler::toindex(QString path)
     return index;
 
 }
-
 QString GameControler::toPath(int index)
 {
     QString path= QString("cards/%1.gif").arg(index, 2, 10, QChar('0'));
     return path;
 }
 
-int GameControler::getTurnDouble()
+//search in hand of the second parametre
+int GameControler::searchCard(QString path, Player* p1)
 {
-    return turn;
+    // Extract the numeric part from the path
+    QRegularExpression regex("(\\d+)\\.gif");
+    QRegularExpressionMatch match = regex.match(path);
+
+    // Check if the match is successful
+    if (match.hasMatch()) {
+        // Extract the captured digits from the match
+        QString numberPart = match.captured(1);
+
+        // Convert the extracted string to an integer
+        int cardNumber = numberPart.toInt();
+        QList<int> handp1 = p1->getHand();
+        // Check if the card was found
+        int index = handp1.indexOf(cardNumber);
+        if (index != -1) {
+            qDebug() << "card choesen is " << cardNumber << "and the index is :"<<index;
+            return index;
+        } else { /*in case the card is not found in the hand*/
+            qDebug() << "Card with number" << cardNumber << "not found in the hand.";
+            return -1;
+        }
+    } else {
+        qDebug() << "No match found for the card number in the path:" << path;
+        return -2;
+    }
 
 }
 
-void GameControler::setTurnDouble(int turn)
-{
-    this->turn= turn;
 
-}
 
+//determines the winner
 void GameControler::winner()
 {
-        int score1=score->getScore1(); /*the score of the player1*/
-        int score2=score->getScore2(); /*the score of the bot*/
-
-
+    int score1=score->getScore1(); /*the score of the player1*/
+    int score2=score->getScore2(); /*the score of the bot*/
 
 //        in case the score 1> score2 the player1 win
-        if(score1>score2){
-            whoWin=1;
-            hightScore();
+    if(score1>score2){
+        whoWin=1;
+        hightScore();
 
-        }else if(score2 >=score1){/*in case the score 1< score2 the bot win*/
-            whoWin=2;
-        }
+    }else if(score2 >=score1){/*in case the score 1< score2 the bot win*/
+        whoWin=2;
+    }
 //        emit the signal that the winner is determined
-        emit winnerDetected();
+    emit winnerDetected();
 
 }
 
-int GameControler::getWhoWin()
-{
-        return whoWin;
-}
-
-
-void GameControler::setDifficulty(QString diff)
-{
-        difficulty= diff;
-}
-
+//manages the hight score, loading it from a file and updationg it necessary
 int GameControler::hightScore()
 {
         int score1 = score->getScore1(); // the score of player1
@@ -238,38 +180,109 @@ int GameControler::hightScore()
 }
 
 
-
-int GameControler::searchCard(QString path, Player* p1)
+//Principale play card function
+void GameControler::play(QString cardPlayedSource)
 {
-    // Extract the numeric part from the path
-    QRegularExpression regex("(\\d+)\\.gif");
-    QRegularExpressionMatch match = regex.match(path);
+    QList<int> deckList = deck->getDeck();/* get the deck cards*/
+    QList<int> player1Hand = player1->getHand(); /*get player1 hand*/
+    QList<int> player2Hand = player2->getHand(); /*get player2 hand*/
+    int briscoS= deck->getBriscoSuite();
 
-    // Check if the match is successful
-    if (match.hasMatch()) {
-        // Extract the captured digits from the match
-        QString numberPart = match.captured(1);
+    int indexOfCardPlayed = searchCard(cardPlayedSource,player1); /*trnasfert the path in function parametre to a index in the hand of the secand parametre*/
+    int indexCard = toindex(cardPlayedSource); /*stock the index in deck of the cardPlayed*/
+    int cardPlay= player1Hand[indexOfCardPlayed]; /*stock the index in the hand of player 1 of the card played*/
+    int indexOfImageEmit =card2; /*stock the index of the last card played from the bot in indexOfImageEmit*/
+    QString imageEmit=toPath(card2); /*stock the path of the last card played from the bot in indexOfImageEmit*/
 
-        // Convert the extracted string to an integer
-        int cardNumber = numberPart.toInt();
-        QList<int> handp1 = p1->getHand();
-        // Check if the card was found
-        int index = handp1.indexOf(cardNumber);
-        if (index != -1) {
-            qDebug() << "card choesen is " << cardNumber << "and the index is :"<<index;
-            return index;
-        } else { /*in case the card is not found in the hand*/
-            qDebug() << "Card with number" << cardNumber << "not found in the hand.";
-            return -1;
+
+    while (turn < 2) {
+        if (player1Turn == false){/* turn of bot*/
+
+            imageEmit=botPlay(turn, cardPlay); /*call botPlay function so the bot play*/
+            indexOfImageEmit =toindex(imageEmit); /*stock the card played by the bot in a variable*/
+
+        }else if(player1Turn == true){ /* turn of player1*/
+
+            player1->remove(indexOfCardPlayed); /*remove the card from player hand*/
+            if(turn == 0){
+                qDebug() << "---------------" ;
+            }
+            switchTurn(); /*switch turn after the player play a card*/
+            qDebug() << "le player a jouer" << indexCard;
+            turn++;
+
         }
-    } else {
-        qDebug() << "No match found for the card number in the path:" << path;
-        return -2;
+//        if the 2 of the player play his turn the while boucle end
+    }
+//        initialize the turn with 0
+    turn = 0;
+//        set the score of the round
+    score->setScore(indexCard,indexOfImageEmit ,briscoS);
+
+    int valueCardEmit= deck->getValue(indexOfImageEmit); /*stock the value of card emit by bot*/
+    int valueCardPlayed = deck->getValue(indexCard);    /*stock the value of card emit by player1*/
+    int CardEmitS= deck->getSuite(indexOfCardPlayed);
+    int CardPlayedS= deck->getSuite(indexCard);
+
+
+//        clear the battle
+    emit clearBattle(0);
+
+
+//    identifie the next turn
+
+//    in case the two card played are blong briscola suite or the two of them aren't belong to briscola suite
+    if((CardEmitS==briscoS && CardPlayedS==briscoS) || (CardEmitS!=briscoS && CardPlayedS!=briscoS)){
+
+//        in case the value of card played by the bot is higher then the value card played by the player
+        if(valueCardEmit > valueCardPlayed){
+
+            player1Turn = false; /*the bot will play first*/
+            emit turnChanged(player1Turn); /*send a signal that the turn has changed*/
+
+//        in case the value of card played by the bot is equal the value of card played by the player
+        }else if(valueCardEmit == valueCardPlayed){
+
+//            in case the value of both of cards are equal 0
+            if(valueCardEmit == 0 && valueCardPlayed == 0){
+
+//                in case the card played by the bot is higher in number
+                if((indexOfImageEmit%10) > (indexCard%10)){
+                    player1Turn = false;/*the bot will play first*/
+                    emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
+
+                }else{
+                    player1Turn=true;/*the player will play first*/
+                    emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
+                }
+
+            }else{
+                switchTurn(); /*the first played lat round will play first*/
+                emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
+            }
+        }else if(valueCardEmit < valueCardPlayed){ /*!! pass*/
+            player1Turn = true;/*the player will play first*/
+            emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
+        }
+
+    }else if(CardEmitS!=briscoS && CardPlayedS==briscoS){
+
+        player1Turn= true;/*the player will play first*/
+        emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
+
+    }else if(CardEmitS==briscoS && CardPlayedS!=briscoS){
+
+        player1Turn= false;/*the bot will play first*/
+        emit turnChanged(player1Turn);/*send a signal that the turn has changed*/
     }
 
+//        if the player1 and do bot d'ont have any card that mean that the game is over
+    if(player1Hand.size()==1 && (player2Hand.size()==1 || player2Hand.size() == 0)){
+        winner();
+    }
+
+
 }
-
-
 
 QString GameControler::botPlay(int botTurn, int cardPlayed)
 {
@@ -277,14 +290,19 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
     QList<int> hand = player2->getHand();/*hand of player2(bot)*/
     QList<int> player1Hand = player1->getHand();/*hand of player1*/
 
-    if(hand.size()==0)
+//    in case the hand is empty
+    if(hand.size()==0){
         return "";
+    }
+
     //    if the player1 select the difficulty medium
     static int med = 0;
+//    in case the player choose the Difficulty Medium
     if(difficulty == "Medium"){
         med++;
         srand(time(0));
         int randDifficulty= rand() % 2; /*generate a random = 0 or =1*/
+        qDebug()<<"rasn:"<<randDifficulty;
         if(randDifficulty == 0){ /*in case this random is equal 0 the bot will play in hard difficulty*/
             difficulty="Hard";
             botPlay(botTurn,cardPlayed);
@@ -334,6 +352,7 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
     int maxBrisco=first; /*the max of briscola cards*/
     int min2= deck->getValue(first); /*set initial min2 value of the hand*/
 
+//    console:
     if(hand.size()== 3)
         qDebug()<<"les cartes du bot sont : "<<hand[0]<<", "<<hand[1]<< ", "<< hand[2];
     else if(hand.size() == 2)
@@ -391,9 +410,12 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
 //    Initialize a variable for reuse
     max=deck->getValue(first);
     cardValue = 0;
+
+//    a loop to detect the maximun of the all card that differt to briscola suite and have value less then the card played from the player
     foreach(const int &card, hand){
         cardValue = deck->getValue(card);
-        if(cardValue < cardPlayedValue){
+        cardSuit = deck->getSuite(card);
+        if(cardSuit!= briscoSuit && cardValue < cardPlayedValue){
             if(max <= cardValue){
                 max= cardValue;
                 maxMin=card;
@@ -553,9 +575,7 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
                          imageEmit=source;
                      }
                  }
-
-
-                }
+            }
 
 
 //        in case the player draw a briscola card and the bot don't have it
@@ -577,51 +597,49 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
 
 //                in case the bot has 2 or 1 card that's belong to briscola suit
                 }else if(briscoCounter == 1 || briscoCounter == 2){
-                 if (cardPlayedValue==0){
-                     source = deck->transfertImgSor(tempmin);
-                     index = searchCard(source,player2);
-                     player2->remove(index);
-                     imageEmit=source;
+                    if (cardPlayedValue==0){
+                        source = deck->transfertImgSor(tempmin);
+                        index = searchCard(source,player2);
+                        player2->remove(index);
+                        imageEmit=source;
 
-                 }else if(cardPlayedValue!=0){
-                     if(valueOfMinDefBris > cardPlayedValue){
-                             if(brisDef){
-                             source = deck->transfertImgSor(minDefBrisco);
-                             index = searchCard(source,player2);
-                             player2->remove(index);
-                             imageEmit=source;
+                    }else if(cardPlayedValue!=0){
+                        if(valueOfMinDefBris > cardPlayedValue){
+                                if(brisDef){
+                                source = deck->transfertImgSor(minDefBrisco);
+                                index = searchCard(source,player2);
+                                player2->remove(index);
+                                imageEmit=source;
 
-                         }else{
-                             source = deck->transfertImgSor(minBrisco);
-                             index = searchCard(source,player2);
-                             player2->remove(index);
-                             imageEmit=source;
-                         }
-                     }else if(valueOfMinDefBris <= cardPlayedValue){
-                         if(playedmax != 0){
+                            }else{
+                                source = deck->transfertImgSor(minBrisco);
+                                index = searchCard(source,player2);
+                                player2->remove(index);
+                                imageEmit=source;
+                            }
+                        }else if(valueOfMinDefBris <= cardPlayedValue){
+                            if(playedmax != 0){
 
-                             source = deck->transfertImgSor(minMax);
-                             index = searchCard(source,player2);
-                             player2->remove(index);
-                             imageEmit=source;
-                         }else{
-                             if(playedMB == 0){
+                                source = deck->transfertImgSor(minMax);
+                                index = searchCard(source,player2);
+                                player2->remove(index);
+                                imageEmit=source;
+                            }else{
+                                if(playedMB == 0){
 
-                                 source = deck->transfertImgSor(minBrisco);
-                                 index = searchCard(source,player2);
-                                 player2->remove(index);
-                                 imageEmit=source;
-                             }else{
-                                 source = deck->transfertImgSor(maxBrisco);
-                                 index = searchCard(source,player2);
-                                 player2->remove(index);
-                                 imageEmit=source;
-                             }
-                         }
-
-                     }
-                 }
-
+                                    source = deck->transfertImgSor(minBrisco);
+                                    index = searchCard(source,player2);
+                                    player2->remove(index);
+                                    imageEmit=source;
+                                }else{
+                                    source = deck->transfertImgSor(maxBrisco);
+                                    index = searchCard(source,player2);
+                                    player2->remove(index);
+                                    imageEmit=source;
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -651,15 +669,7 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
         }
     }
 
-
-
-
-
-
-
-
 //    emit a signal that the hand has changed
-    if(player2->getHand().size()!=0)
         emit handChanged(imageEmit);
 
 //    after the bot play it switch the turn and incriment the turn
@@ -675,15 +685,3 @@ QString GameControler::botPlay(int botTurn, int cardPlayed)
 
     return imageEmit;
 }
-
-
-
-
-
-
-
-
-
-
-
-

@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
 
     // Create instances of Card and Deck
     Deck deck;
-    Player player1(&deck);
-    Player player2(&deck);
+    Player player1;
+    Player player2;
     Score score(&deck);
     GameControler control(&deck,&player1,&player2,&score);
 

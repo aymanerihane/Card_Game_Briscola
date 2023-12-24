@@ -30,12 +30,7 @@ QList<int> Deck::getDeck()
 {
     return deck;
 }
-//get the path of briscola card
-QString Deck::getBris()
-{
-    QString path = transfertImgSor(brisco);
-    return path;
-}
+
 //get the suite of the briscola card
 int Deck::getBriscoSuite(){
     return briscoSuite;
@@ -49,7 +44,7 @@ void Deck::setupDeck(){
     suits.clear();
 
 //    push all cards to the deck list
-    for(int i =0; i<10; i++){
+    for(int i =0; i<40; i++){
 
         deck.push_back((i));
     }

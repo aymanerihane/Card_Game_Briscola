@@ -3,7 +3,7 @@
 
 
 
-Player::Player(Deck* deck): deck(deck)
+Player::Player()
 {
     hand.clear(); /*clear hand */
 }
@@ -29,7 +29,7 @@ QList<int> Player::getHand()
 }
 
 //function to clear hand
-void Player::clearHand(QList<int> h)
+void Player::clearHand()
 {
     hand.clear();
 }

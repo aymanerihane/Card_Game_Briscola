@@ -37,7 +37,6 @@ public:
     Q_INVOKABLE void setupDeck();
     Q_INVOKABLE int isEmp(QList<int> de);
     Q_INVOKABLE QList<int> getDeck();
-    QString getBris();
     int getBriscoSuite();
     int getSuite(int card);
     int getValue(int card);
