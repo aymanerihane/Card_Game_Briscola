@@ -4,7 +4,7 @@
 
 # Briscola Morocain Card Game
 
-Brescola is a classic Italian card game played against the computer. This implementation is built using the Qt framework.
+Brescola is a classic Morocain card game played against the computer. This implementation is built using the Qt framework.
 
 ## Installation
 
