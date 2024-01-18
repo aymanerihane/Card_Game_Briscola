@@ -10,7 +10,7 @@ Brescola is a classic Morocain card game played against the computer. This imple
 
 ### Windows
 
-1. Download the installer from the [releases page](https://github.com/aymanerihane/exe).
+1. Download the installer from the [releases page](https://github.com/aymanerihane/Verison-final-project-jeux-de-cartes-cpp-Qt).
 2. Run the installer and follow the on-screen instructions.
 3. Launch the Brescola game after installation.
 
